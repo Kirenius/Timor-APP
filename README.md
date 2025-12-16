@@ -53,7 +53,7 @@
 
 1.  **Clone Repository**
     ```bash
-    git clone https://github.com/kirenius-kollo/timor-app.git
+    git clone https://timorapp.com/kirenius-kollo/timor-app.git
     cd timor-app
     ```
 
