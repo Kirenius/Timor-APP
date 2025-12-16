@@ -7,11 +7,12 @@ import { Profile } from './pages/Profile';
 import { Internet } from './pages/Internet';
 import { Wallet } from './pages/Wallet';
 import { TimorAI } from './pages/TimorAI';
+import { Pricing } from './pages/Pricing';
 import { PaymentModal } from './components/PaymentModal';
 import { WithdrawModal } from './components/WithdrawModal';
 import { ShareModal } from './components/ShareModal';
 import { Menu, DollarSign, TrendingUp } from 'lucide-react';
-import { INITIAL_USER_CONFIG } from './constants';
+import { INITIAL_USER_CONFIG, APP_CONFIG } from './constants';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -47,35 +48,57 @@ const App: React.FC = () => {
         const timer = setTimeout(() => {
           setAdStats(prev => {
             const newImpressions = prev.impressions + 1;
-            const cpm = 2.50; 
+            const cpm = 2.50; // Cost Per Mille (1000 impressions)
             const revenueInc = cpm / 1000;
             const newRevenue = prev.revenue + revenueInc;
             
-            console.log(`[MONETIZATION] Ad Impression Recorded. Revenue: +$${revenueInc}`);
+            // Detailed Console Logging for Verification
+            console.groupCollapsed(`[MONETIZATION] Ad Impression #${newImpressions}`);
+            console.log(`Page View: ${currentView.toUpperCase()}`);
+            console.log(`CPM Rate: $${cpm.toFixed(2)}`);
+            console.log(`Revenue Generated: +$${revenueInc.toFixed(4)}`);
+            console.log(`Total Session Revenue: $${newRevenue.toFixed(4)}`);
+            console.groupEnd();
+
             return { impressions: newImpressions, revenue: newRevenue };
           });
           
+          // Simulate revenue actually hitting the wallet (Admin View)
           setWalletBalance(prev => prev + 0.0025);
-        }, 500); 
+        }, 1500); // Slight delay to simulate "viewability" time
 
         return () => clearTimeout(timer);
       }
     }
   }, [currentView, isAuthenticated, user.isVip]);
 
-  const handleLogin = (email: string) => {
+  const handleLogin = (email: string, name?: string, avatar?: string) => {
     const isAdmin = email === 'admin@timor.tl';
-    const isOwner = email === 'kirenius.kollo@timorapp.com';
+    const isOwner = email === APP_CONFIG.ownerEmail;
     
-    // Override user based on login
+    // Create User Profile based on Login
+    let newUserProfile: User;
+
     if (isOwner) {
-       setUser(INITIAL_USER_CONFIG); // Owner
+       newUserProfile = INITIAL_USER_CONFIG; // Restore Owner
     } else if (isAdmin) {
-       setUser({ ...INITIAL_USER_CONFIG, name: 'Admin Staff', email, role: 'Admin', isVip: true });
+       newUserProfile = { ...INITIAL_USER_CONFIG, name: 'Admin Staff', email, role: 'Admin', isVip: true };
     } else {
-       setUser({ ...INITIAL_USER_CONFIG, name: 'Pengguna Baru', email, role: 'User', isVip: false });
+       // Regular User (Email or Google)
+       newUserProfile = { 
+         ...INITIAL_USER_CONFIG, 
+         id: `u-${Date.now()}`,
+         name: name || 'Pengguna Baru', 
+         email, 
+         role: 'User', 
+         isVip: false,
+         avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80',
+         security: { ...INITIAL_USER_CONFIG.security!, level: 1, twoFactorEnabled: false, biometricEnabled: false }, // Reset security for new users
+         auditLog: [] // Clear audit log for new users
+       };
     }
 
+    setUser(newUserProfile);
     setIsAuthenticated(true);
     setCurrentView('dashboard');
   };
@@ -175,6 +198,7 @@ const App: React.FC = () => {
           {currentView === 'dashboard' && <Dashboard user={user} />}
           {currentView === 'ai' && <TimorAI user={user} />}
           {currentView === 'internet' && <Internet user={user} onUpgrade={handleUpgradeClick} />}
+          {currentView === 'pricing' && <Pricing user={user} onUpgrade={handleUpgradeClick} />}
           {currentView === 'profile' && (
             <Profile 
               user={user} 
@@ -197,6 +221,7 @@ const App: React.FC = () => {
         onClose={() => setIsPaymentModalOpen(false)}
         onSuccess={handlePaymentSuccess}
         planPrice="$5.00/bln"
+        isAlreadyVip={user.isVip}
       />
 
       <WithdrawModal 

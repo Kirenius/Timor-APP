@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, User, LogOut, X, MapPin, ShieldCheck, Crown, Wallet, Share2, Download, Sparkles } from 'lucide-react';
+import { LayoutDashboard, User, LogOut, X, MapPin, ShieldCheck, Crown, Wallet, Share2, Download, Sparkles, CreditCard } from 'lucide-react';
 import { ViewState, User as UserType } from '../types';
 import { AdBanner } from './ui/AdBanner';
 
@@ -26,14 +26,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'dashboard' as ViewState, label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'ai' as ViewState, label: 'Timor AI', icon: <Sparkles size={20} /> },
     { id: 'internet' as ViewState, label: 'Internet Privasi', icon: <ShieldCheck size={20} /> },
+    { id: 'pricing' as ViewState, label: 'Langganan & Solusi', icon: <CreditCard size={20} /> },
+    // Logika Kondisional: Tampilkan menu Keuangan hanya jika role adalah Super Admin
+    ...(user.role === 'Super Admin' ? [{ 
+      id: 'wallet' as ViewState, 
+      label: 'Keuangan', 
+      icon: <Wallet size={20} /> 
+    }] : []),
     { id: 'profile' as ViewState, label: 'Profil Saya', icon: <User size={20} /> },
   ];
-
-  // Add Wallet menu ONLY if user is Super Admin
-  if (user.role === 'Super Admin') {
-    // Insert after dashboard/ai/internet
-    menuItems.splice(3, 0, { id: 'wallet' as ViewState, label: 'Keuangan', icon: <Wallet size={20} /> });
-  }
 
   const handleInstallClick = () => {
     // Simulasi install prompt PWA

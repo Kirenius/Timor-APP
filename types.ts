@@ -10,6 +10,18 @@ export interface User {
   pin?: string;
   antiPhishingCode?: string;
   auditLog?: AuditLogEntry[];
+  security?: SecurityConfig;
+}
+
+export interface SecurityConfig {
+  level: number; // 1-10
+  twoFactorEnabled: boolean;
+  biometricEnabled: boolean;
+  ipWhitelist: string[];
+  ghostMode: boolean; // Hide status from others
+  loginAlerts: boolean;
+  hardwareKeyLinked: boolean;
+  lastSecurityAudit: string;
 }
 
 export interface AuditLogEntry {
@@ -17,8 +29,32 @@ export interface AuditLogEntry {
   timestamp: string;
   action: string;
   ip: string;
+  location: string;
   device: string;
-  status: 'success' | 'warning';
+  status: 'success' | 'warning' | 'blocked';
+  riskLevel: 'Low' | 'Medium' | 'Critical';
+}
+
+export interface SecurityThreat {
+  id: string;
+  ip: string;
+  type: 'PHISHING' | 'DDOS' | 'BRUTE_FORCE' | 'SQL_INJECTION';
+  location: string;
+  coords: { x: number; y: number }; // Percentage for map
+  status: 'DETECTING' | 'TRACING' | 'LOCKED' | 'NEUTRALIZED';
+  confidence: number; // 0-100%
+  timestamp: string;
+}
+
+export interface AttackEvent {
+  id: string;
+  sourceCountry: string;
+  targetCountry: string;
+  type: 'BACKDOOR' | 'PHISHING' | 'RANSOMWARE' | 'EXPLOIT';
+  targetCoords: { x: number; y: number };
+  timestamp: string;
+  severity: 'HIGH' | 'CRITICAL' | 'EXTREME';
+  protocol: string;
 }
 
 export interface ServerNode {
@@ -54,9 +90,10 @@ export interface ChatMessage {
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  isThinking?: boolean;
 }
 
-export type ViewState = 'login' | 'dashboard' | 'profile' | 'internet' | 'wallet' | 'ai';
+export type ViewState = 'login' | 'dashboard' | 'profile' | 'internet' | 'wallet' | 'ai' | 'pricing';
 
 export interface NavItem {
   id: ViewState;

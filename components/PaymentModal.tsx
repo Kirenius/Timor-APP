@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, CreditCard, Smartphone, CheckCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { X, CreditCard, Smartphone, CheckCircle, Loader2, ShieldCheck, Crown } from 'lucide-react';
 import { Button } from './ui/Button';
 
 interface PaymentModalProps {
@@ -7,11 +7,12 @@ interface PaymentModalProps {
   onClose: () => void;
   onSuccess: () => void;
   planPrice: string;
+  isAlreadyVip?: boolean;
 }
 
 type PaymentMethod = 'card' | 'mobile' | 'visa';
 
-export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onSuccess, planPrice }) => {
+export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onSuccess, planPrice, isAlreadyVip }) => {
   const [method, setMethod] = useState<PaymentMethod>('visa');
   const [processing, setProcessing] = useState(false);
   const [step, setStep] = useState<'form' | 'success'>('form');
@@ -24,6 +25,39 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onS
   const [provider, setProvider] = useState('Telemor');
 
   if (!isOpen) return null;
+
+  // Render Already VIP State
+  if (isAlreadyVip) {
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+          onClick={onClose}
+        />
+        
+        {/* Modal Card */}
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in transform transition-all p-8 flex flex-col items-center text-center">
+             <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <X size={20} />
+             </button>
+             
+             <div className="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mb-6 border border-yellow-100">
+                <Crown size={40} className="text-yellow-500 fill-yellow-500/20" />
+             </div>
+             
+             <h2 className="text-2xl font-bold text-gray-900 mb-2">Status VIP Aktif</h2>
+             <p className="text-gray-500 mb-8 text-sm leading-relaxed max-w-xs mx-auto">
+               Akun Anda sudah memiliki akses Premium penuh. Nikmati kecepatan tanpa batas dan akses server global.
+             </p>
+             
+             <Button onClick={onClose} fullWidth className="bg-slate-900 text-white hover:bg-slate-800 h-11">
+                Kembali ke Dashboard
+             </Button>
+        </div>
+      </div>
+    );
+  }
 
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,7 +3,7 @@ import { Button } from '../components/ui/Button';
 import { User, Lock, ArrowRight, Loader2, MapPin } from 'lucide-react';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (email: string, name?: string, avatar?: string) => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -15,16 +15,28 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     e.preventDefault();
     setLoading(true);
     
-    // Langsung panggil onLogin tanpa delay (setTimeout dihapus)
-    onLogin();
+    // Simulate network delay then login with entered email
+    setTimeout(() => {
+        // Use part of email as name if manual login
+        const generatedName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        onLogin(email, generatedName);
+    }, 800);
   };
 
-  const handleSocialLogin = () => {
-    // Simulasi login sukses via social media
+  const handleSocialLogin = (provider: string) => {
     setLoading(true);
     setTimeout(() => {
-        onLogin();
-    }, 800);
+        if (provider === 'Google') {
+            onLogin(
+                'alex.santos@gmail.com', 
+                'Alex Santos', 
+                'https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80'
+            );
+        } else {
+             // Default fallback for other providers
+            onLogin('user.social@timor.tl', 'Social User');
+        }
+    }, 1000);
   };
 
   return (
@@ -56,6 +68,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 sm:p-12 lg:p-24 bg-white">
         <div className="w-full max-w-md space-y-8">
+          
+          {/* Logo Mobile/Form Header */}
+          <div className="flex justify-center lg:justify-start mb-4">
+            <div className="flex items-center gap-2 text-red-600">
+              <MapPin size={36} className="fill-current" />
+              <span className="text-3xl font-bold text-gray-900">TIMOR<span className="text-red-600">APP</span></span>
+            </div>
+          </div>
+
           <div className="text-center lg:text-left">
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Selamat Datang Kembali</h2>
             <p className="mt-2 text-sm text-gray-600">
@@ -153,7 +174,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <div className="mt-6 grid grid-cols-3 gap-3">
             <button
               type="button"
-              onClick={handleSocialLogin}
+              onClick={() => handleSocialLogin('Google')}
               className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
               title="Masuk dengan Google"
             >
@@ -167,7 +188,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <button
               type="button"
-              onClick={handleSocialLogin}
+              onClick={() => handleSocialLogin('Facebook')}
               className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
               title="Masuk dengan Facebook"
             >
@@ -178,7 +199,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
             <button
               type="button"
-              onClick={handleSocialLogin}
+              onClick={() => handleSocialLogin('Apple')}
               className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
               title="Masuk dengan Apple"
             >
